@@ -47,7 +47,7 @@ const send = async () => {
   //gas估算
   const gas = await web3.eth.estimateGas(rawTx);
   rawTx.gas = gas;
-  console.log(rawTx);
+  // console.log(rawTx);
   //私钥加密
   const tx = new Tx(rawTx);
   tx.sign(privateKey);
