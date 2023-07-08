@@ -1,0 +1,212 @@
+.bgw {
+  background-color: whitesmoke;
+}
+.uni-ellipsis {
+  /* #ifndef APP-NVUE */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  /* #endif */
+  /* #ifdef APP-NVUE */
+  lines: 1;
+  /* #endif */
+}
+
+.uni-ellipsis-2 {
+  /* #ifndef APP-NVUE */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  /* #endif */
+
+  /* #ifdef APP-NVUE */
+  lines: 2;
+  /* #endif */
+}
+.uni-ellipsis-3 {
+  /* #ifndef APP-NVUE */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  /* #endif */
+
+  /* #ifdef APP-NVUE */
+  lines: 3;
+  /* #endif */
+}
+//定位 样式
+@each $type in margin, padding {
+  @for $i from 0 through 48 {
+    .#{$type}-#{$i*2} {
+      #{$type}: $i px;
+    }
+
+    @for $j from 0 through 24 {
+      .#{$type}-#{$i*2}-#{$j*2} {
+        #{$type}: $i px $j px;
+      }
+    }
+  }
+}
+
+// .margin-0 {
+//   margin: 0px;
+// }
+
+// .margin-0-0 {
+//   margin: 0px 0px;
+// }
+
+@each $type in margin, padding {
+  @each $direction in left, right, top, bottom {
+    @for $num from 0 through 40 {
+      @if $type==margin {
+        .m-#{$direction}-#{$num} {
+          #{$type}-#{$direction}: $num * 1px;
+        }
+      }
+
+      @if $type==padding {
+        .p-#{$direction}-#{$num} {
+          #{$type}-#{$direction}: $num * 1px;
+        }
+      }
+    }
+  }
+}
+
+@each $type in margin, padding {
+  @for $i from 0 through 24 {
+    .#{$type}-#{$i*2} {
+      #{$type}: $i * 1px;
+    }
+
+    @for $j from 0 through 24 {
+      .#{$type}-#{$i*2}-#{$j*2} {
+        #{$type}: $i * 1px $j * 1px;
+      }
+    }
+  }
+}
+
+@each $type in margin, padding {
+  @each $direction in left, right, top, bottom {
+    @for $num from 0 through 40 {
+      .#{$type}-#{$direction}-#{$num} {
+        #{$type}-#{$direction}: $num * 1px;
+      }
+    }
+  }
+}
+
+.flex {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-c {
+  @extend .flex;
+  flex-direction: column;
+}
+
+.ctx-center {
+  display: flex;
+  align-items: center;
+}
+
+@for $i from 0 through 4 {
+  .flex-#{$i} {
+    flex: $i;
+  }
+}
+
+.flex-Acenter {
+  @extend .flex;
+  align-items: center;
+}
+
+.flex-Aend {
+  @extend .flex;
+  align-items: end;
+}
+
+.flex-Astart {
+  @extend .flex;
+  align-items: start;
+}
+
+.flex-Jcenter {
+  @extend .flex;
+  justify-content: center;
+}
+
+.flex-Jend {
+  @extend .flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.flex-Jstart {
+  @extend .flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.flex-center {
+  @extend .flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-wrap {
+  @extend .flex;
+  flex-flow: wrap;
+  flex-wrap: wrap;
+}
+
+.flex-between {
+  @extend.flex;
+  justify-content: space-between;
+}
+
+.t-right {
+  text-align: right;
+}
+.t-left {
+  text-align: left;
+}
+.t-center {
+  text-align: center;
+}
+
+// ellipsis
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  // white-space: nowrap;
+}
+// .ellipsis--2 {
+// 	display: -webkit-box;
+// 	overflow: hidden;
+// 	text-overflow: ellipsis;
+// 	// word-break: break-all;
+// 	// -webkit-line-clamp: 2;
+// 	// -webkit-box-orient: vertical;
+// }
+
+.fw400 {
+  font-weight: 400;
+}
+.fw600 {
+  font-weight: 600;
+}
+.page-bg {
+  background-color: #f3f4f6;
+  min-height: 100vh;
+}

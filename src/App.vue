@@ -1,9 +1,20 @@
 <template>
   <!-- <web3api /> -->
-  <AccountSyx />
+  <!-- <AccountSyx /> -->
+  <div class="bg">
+    <Home />
+  </div>
 </template>
 <script setup>
-import web3api from "./components/web3api.vue";
-import AccountSyx from "./components/AccountSyx.vue";
+import web3api from "./exercise/web3api.vue";
+import AccountSyx from "./exercise/AccountSyx.vue";
+import Home from "./pages/home/index.vue";
 </script>
-<style scoped></style>
+<style lang="scss">
+@import "@/style/base.scss";
+
+.bg {
+  background-color: rgb(234, 234, 234);
+  min-height: 100vh;
+}
+</style>
