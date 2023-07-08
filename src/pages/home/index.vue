@@ -35,7 +35,14 @@
           :key="item.id"
         >
           <!-- <div slot="value">余额：{{ getMount(item.address) }}</div> -->
-          <div slot="value">余额：{{ item.balance }}ETH</div>
+          <div slot="value">
+            <div>余额：{{ item.balance }}ETH</div>
+            <van-button
+              icon="exchange"
+              @click="openSendDialog(item)"
+              size="mini"
+            ></van-button>
+          </div>
         </van-cell>
       </van-cell-group>
       <van-button type="primary" @click="addAccount" class="m-top-20"
@@ -60,14 +67,40 @@
         />
       </van-cell-group>
     </van-dialog>
+
+    <van-dialog
+      v-model:show="showSend"
+      title="转账"
+      show-cancel-button
+      @confirm="send"
+    >
+      <van-cell-group inset>
+        <van-field
+          v-model="sendInfo.toAddress"
+          name="接收账户地址"
+          label="接收账户地址"
+          placeholder="请输入接收账户地址"
+          :rules="[{ required: true, message: '请输入接收账户地址' }]"
+        />
+        <van-field
+          v-model="sendInfo.mount"
+          name="转账金额(ETH)"
+          label="转账金额(ETH)"
+          placeholder="请输入转账金额"
+          :rules="[{ required: true, message: '请输入转账金额' }]"
+        />
+      </van-cell-group>
+    </van-dialog>
   </div>
 </template>
 
 <script setup>
+import { Buffer } from "buffer";
 import { ref, reactive, computed } from "vue";
 import { showNotify } from "vant";
 import * as bip39 from "bip39";
 import * as eWallet from "ethereumjs-wallet";
+import Tx from "ethereumjs-tx";
 import Web3 from "web3";
 const web3 = new Web3(
   Web3.givenProvider ||
@@ -75,6 +108,13 @@ const web3 = new Web3(
 );
 
 const show = ref(false);
+const showSend = ref(false);
+const sendInfo = reactive({
+  fromAddress: "",
+  toAddress: "",
+  mount: "",
+  privateKey: "",
+});
 const password = ref("");
 const mnemonic = ref("");
 const mnemonic2 = ref("");
@@ -138,6 +178,58 @@ const createAccount = async () => {
     : [newWalletInfo];
   localStorage.setItem("walletInfo", JSON.stringify(walletInfo.value));
   showType.value = 0;
+};
+
+const openSendDialog = (from) => {
+  sendInfo.fromAddress = from.address;
+  sendInfo.privateKey = from.privateKey;
+  showSend.value = true;
+};
+const send = async () => {
+  if (!sendInfo.toAddress) return showNotify("请输入接收账户地址");
+  if (!sendInfo.mount) return showNotify("请输入转账金额");
+  const nonce = await web3.eth.getTransactionCount(sendInfo.toAddress);
+  const gasPrice = await web3.eth.getGasPrice();
+  const value = web3.utils.toWei(sendInfo.mount);
+  const rawTx = {
+    from: sendInfo.fromAddress,
+    to: sendInfo.toAddress,
+    nonce,
+    gasPrice,
+    value,
+    data: "0x0000",
+  };
+  console.log(rawTx);
+
+  //转化私钥
+  const privateKey = Buffer(sendInfo.privateKey, "hex");
+  //gas估算
+  const gas = await web3.eth.estimateGas(rawTx);
+  rawTx.gas = gas;
+  // console.log(rawTx);
+  //私钥加密
+  const tx = new Tx(rawTx);
+  tx.sign(privateKey);
+  const serializedTx = "0x" + tx.serialize().toString("hex");
+  // console.log(serializedTx);
+  //开始转账
+  const trans = web3.eth.sendSignedTransaction(serializedTx);
+  trans.on("transactionHash", (txid) => {
+    console.log("交易id:", txid);
+    console.log(`https://goerli.etherscan.io/tx/${txid}`);
+  });
+  trans.on("receipt", (res) => {
+    console.log("第一个节点确认", res);
+    showNotify("转账成功");
+    updateWalletInfo();
+  });
+  // trans.on("confirmation", (res) => {
+  //   console.log("第n个节点确认", res);
+  // });
+  trans.on("error", (error) => {
+    console.log(error);
+    showNotify("Transaction error:" + error.message);
+  });
 };
 
 updateWalletInfo();
