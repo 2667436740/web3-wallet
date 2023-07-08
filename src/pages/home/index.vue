@@ -1,7 +1,7 @@
 <template>
   <!-- <div class="nav-bar"></div> -->
-  <div class="flex-center" style="min-height: 100vh">
-    <div class="t-center" style="padding: 20px" v-if="!walletInfo">
+  <div class="flex-center" style="min-height: 100vh; width: 100%">
+    <div class="t-center" style="padding: 20px; width: 100%" v-if="!walletInfo">
       <van-button type="primary" @click="show = true" v-if="!mnemonic"
         >创建账户</van-button
       >
@@ -27,12 +27,20 @@
         >
       </div>
     </div>
-    <div class="t-center" style="padding: 20px" v-else>
-      <div>现有账户</div>
-      <div v-for="(item, index) in walletInfo" :key="item.id">
-        <div>地址{{ item.address }}</div>
-      </div>
-      <van-button type="primary" @click="addAccount">添加账户</van-button>
+    <div class="t-center" style="padding: 20px; width: 100%" v-else>
+      <van-cell-group inset title="现有账户">
+        <van-cell
+          :title="sliceAddress(item.address)"
+          v-for="(item, index) in walletInfo"
+          :key="item.id"
+        >
+          <!-- <div slot="value">余额：{{ getMount(item.address) }}</div> -->
+          <div slot="value">余额：{{ item.balance }}ETH</div>
+        </van-cell>
+      </van-cell-group>
+      <van-button type="primary" @click="addAccount" class="m-top-20"
+        >添加账户</van-button
+      >
     </div>
 
     <van-dialog
@@ -56,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
 import { showNotify } from "vant";
 import * as bip39 from "bip39";
 import * as eWallet from "ethereumjs-wallet";
@@ -75,14 +83,22 @@ const walletInfo = ref([]);
 walletInfo.value = JSON.parse(localStorage.getItem("walletInfo"));
 if (walletInfo.value) mnemonic.value = walletInfo.value[0].mnemonic;
 
+const sliceAddress = (address) => {
+  return address.slice(0, 8) + "..." + address.slice(address.length - 8);
+};
+
+const updateWalletInfo = () => {
+  walletInfo.value.forEach(async (item, i) => {
+    const balance = await web3.eth.getBalance(item.address);
+    item.balance = web3.utils.fromWei(balance, "ether");
+  });
+};
+
 const addAccount = () => {
   if (!walletInfo.value) {
     if (!password.value) return showNotify("请输入密码");
-    // mnemonic.value = walletInfo
-    //   ? walletInfo[0]["mnemonic"]
-    //   : bip39.generateMnemonic();
     mnemonic.value = bip39.generateMnemonic();
-    console.log(mnemonic.value);
+    // console.log(mnemonic.value);
     password.value = "";
     showType.value = 1;
   } else {
@@ -123,6 +139,8 @@ const createAccount = async () => {
   localStorage.setItem("walletInfo", JSON.stringify(walletInfo.value));
   showType.value = 0;
 };
+
+updateWalletInfo();
 </script>
 <style scoped lang="scss">
 .nav-bar {
